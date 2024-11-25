@@ -150,7 +150,29 @@ void start_new_file(record rec) {
 
 
 char * db_find(int64_t key) {
+    page * search = rt;  // 루트 페이지부터 서치 시작
+    if(!search) {
+        return NULL;    // 루트가 없을 경우 NULL 반환
+    }
+    
+    while(!search->is_leaf) {   // 인터널 페이지 탐색하며 내려가기
+        int i = 0;
+        while(i<search->num_of_keys && key >= search->b_f[i].key) { 
+            i++;    // 인터널 페이지 안에서 비교 대상이 key보다 작을때까지 이동
+        }
+        search = load_page(search->b_f[i].p_offset);     // 적절한 위치에서 아래로 이동 (포인터가 가리키는 곳으로)
+    }
 
+    for(int i=0; i<search->num_of_keys; i++) {  // 리프 페이지 안에서 탐색
+        if(search->records[i].key == key) {   // 리프 페이지의 레코드의 키와 검색한 키가 같다면 해당 레코드의 value를 저장 후 리턴
+            char * value = strdup(search->records[i].value);
+            free(search);
+            return value;
+        }
+    }
+
+    free(search);
+    return NULL;    // 검색 결과가 없는 경우 NULL 반환
 }
 
 int db_insert(int64_t key, char * value) {
