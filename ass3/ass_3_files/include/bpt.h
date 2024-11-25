@@ -2,7 +2,7 @@
 #define __BPT_H__
 
 // Uncomment the line below if you are compiling on Windows.
-// #define WINDOWS
+//#define WINDOWS
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
