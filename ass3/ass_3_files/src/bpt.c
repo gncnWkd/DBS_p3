@@ -176,7 +176,42 @@ char * db_find(int64_t key) {
 }
 
 int db_insert(int64_t key, char * value) {
+    if(db_find(key)) {
+        return -1;  // duplicate key가 insert되면 안 됨
+    }
 
+    page * leaf = rt;
+    off_t leaf_offset = 0;
+
+    if(!leaf) {
+        record new_record = {key, ""};
+        strncpy(new_record.value, value, sizeof(new_record.value)-1);
+        start_new_file(new_record);
+        return 0;
+    }
+
+    while(!leaf->is_leaf) {
+        int i = 0;
+        while(i<leaf->num_of_keys && key >= leaf->b_f[i].key) {
+            i++;
+        }
+        leaf_offset = leaf->b_f[i].p_offset;
+        leaf = load_page(leaf->b_f[i].p_offset);
+    }
+
+    if(leaf->num_of_keys < 31) {
+        int i = leaf->num_of_keys - 1;
+        while (i >= 0 && leaf->records[i].key > key) {
+            leaf->records[i + 1] = leaf->records[i];
+            i--;
+        }
+        leaf->records[i + 1].key = key;
+        strncpy(leaf->records[i + 1].value, value, sizeof(leaf->records[i + 1].value) - 1);
+        leaf->num_of_keys++;
+        pwrite(fd, leaf, sizeof(page), leaf_offset);
+        free(leaf);
+        return 0;
+    }
 
 }
 
