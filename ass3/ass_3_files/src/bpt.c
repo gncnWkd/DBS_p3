@@ -213,11 +213,98 @@ int db_insert(int64_t key, char * value) {
         return 0;
     }
 
+    /*
+    // 리프 페이지 분할 처리
+    page * new_leaf = (page *)calloc(1, sizeof(page));
+    new_leaf->is_leaf = 1;
+    new_leaf->next_offset = leaf->next_offset;
+    leaf->next_offset = new_page();
+
+    // 기존 및 새로운 페이지로 레코드 분배
+    int split = (31 + 1) / 2; // 분할 지점 계산
+    for (int i = split, j = 0; i < 31; i++, j++) {
+        new_leaf->records[j] = leaf->records[i];
+        leaf->records[i].key = 0; // 초기화
+        memset(leaf->records[i].value, 0, sizeof(leaf->records[i].value));
+    }
+    leaf->num_of_keys = split;
+    new_leaf->num_of_keys = 31 - split;
+
+    // 새로운 키 삽입 위치 결정
+    if (key < new_leaf->records[0].key) {
+        int i = leaf->num_of_keys - 1;
+        while (i >= 0 && leaf->records[i].key > key) {
+            leaf->records[i + 1] = leaf->records[i];
+            i--;
+        }
+        leaf->records[i + 1].key = key;
+        strncpy(leaf->records[i + 1].value, value, sizeof(leaf->records[i + 1].value) - 1);
+        leaf->num_of_keys++;
+    } else {
+        int i = new_leaf->num_of_keys - 1;
+        while (i >= 0 && new_leaf->records[i].key > key) {
+            new_leaf->records[i + 1] = new_leaf->records[i];
+            i--;
+        }
+        new_leaf->records[i + 1].key = key;
+        strncpy(new_leaf->records[i + 1].value, value, sizeof(new_leaf->records[i + 1].value) - 1);
+        new_leaf->num_of_keys++;
+    }
+
+    // 부모 페이지에 새 키 삽입
+    pwrite(fd, leaf, sizeof(page), leaf->offset);
+    pwrite(fd, new_leaf, sizeof(page), new_leaf->offset);
+    free(leaf);
+    free(new_leaf);
+
+    return 0;*/
+
 }
 
 
 int db_delete(int64_t key) {
+    /*
+    if (!rt) {
+        return -1; // 트리가 비어 있음
+    }
 
+    page * leaf = rt;
+
+    // 리프 페이지로 이동
+    while (!leaf->is_leaf) {
+        int i = 0;
+        while (i < leaf->num_of_keys && key >= leaf->b_f[i].key) {
+            i++;
+        }
+        leaf = load_page(leaf->b_f[i].p_offset);
+    }
+
+    // 리프 페이지에서 키 삭제
+    int i;
+    for (i = 0; i < leaf->num_of_keys; i++) {
+        if (leaf->records[i].key == key) {
+            break;
+        }
+    }
+
+    if (i == leaf->num_of_keys) {
+        free(leaf);
+        return -1; // 키를 찾을 수 없음
+    }
+
+    // 키 제거 및 레코드 이동
+    for (++i; i < leaf->num_of_keys; i++) {
+        leaf->records[i - 1] = leaf->records[i];
+    }
+    leaf->num_of_keys--;
+
+    pwrite(fd, leaf, sizeof(page), leaf->offset);
+    free(leaf);
+
+    // 부족한 키 수 해결 (병합 또는 재배치)
+    // 병합/재배치 로직 필요
+
+    return 0;*/
 }//fin
 
 
