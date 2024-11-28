@@ -5,7 +5,7 @@ int main(){
     char instruction;
     char buf[120];
     char *result;
-    open_table("test.db");
+    open_table("DB2020014975.db");
     while(scanf("%c", &instruction) != EOF){
         switch(instruction){
             case 'i':
